@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <div id="register" style="display: block;">
+        <h1>Create User</h1>
+        <form id="registration-form">
+            <input type="email" name="email" id="email" placeholder="Email" required autofocus>
+            <br>
+            <input type="password" name="password" id="password" placeholder="Password">
+            <br>
+            <input type="submit" value="Register">
+        </form>
+    </div>
+
+    <div id="confirm" style="display: none;">
+        <h3>Confirmation Code has been sent, please check you email.</h3>
+        <form id="confirm-form">
+            <input type="text" name="confirmation-code" id="confirmation-code" placeholder="Confirmation Code">
+            <br>
+            <input type="submit" value="Register">
+        </form>
+    </div>
+
+
+    <script>
+        const registerDiv = document.getElementById('register');
+        const confirmDiv = document.getElementById('confirm');
+
+        const registrationForm = document.getElementById('registration-form');
+        const confirmForm = document.getElementById('confirm-form');
+        let sentEmail = '';
+
+        registrationForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const registrationData = {
+                email: email,
+                password: password
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/api/register/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(registrationData)
+                });
+
+                if (response.ok) {
+                    registerDiv.style.display = 'none';
+                    confirmDiv.style.display = 'block';
+                    sentEmail = email;
+                }
+                else {
+                    alert('fail:(');
+                }
+            }
+            catch (error) {
+                alert('An error occurred during registration!');
+                console.error(error);
+                // Handle error
+            }
+        });
+
+        confirmForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const confirmData = {
+                email: sentEmail,
+                confirmation_code: document.getElementById('confirmation-code').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/api/confirm/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(confirmData)
+                });
+
+                if (response.ok) {
+                    alert('User created successfully!');
+                }
+                else {
+                    alert('Wrong confirmation code');
+                }
+            }
+            catch (error) {
+                console.error(error);
+                // Handle error
+            }
+        });
+    </script>
+</body>
+</html>
